@@ -872,6 +872,10 @@ export default {
   mounted() {
     // store.set('egg', 'egg')
     // console.log(store.get('egg'))
+  },
+
+  async beforeMount(){
+    await setTimeout(() => {  return 'hello' }, 2000);
   }
 
 
