@@ -674,8 +674,8 @@ span {
 
 
 import _ from 'lodash';
-import Store from 'electron-store'
-const store = new Store()
+// import Store from 'electron-store'
+// const store = new Store()
 
 export default {
   name: 'App',
@@ -870,8 +870,8 @@ export default {
   },
 
   mounted() {
-    store.set('egg', 'egg')
-    console.log(store.get('egg'))
+    // store.set('egg', 'egg')
+    // console.log(store.get('egg'))
   }
 
 
