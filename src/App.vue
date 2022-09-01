@@ -830,7 +830,7 @@ export default {
     var self = this
 
 
-    console.log(store.fstest())
+    store.set('hello', 'hello')
 
     this.gatewaySocket.addEventListener("open", () => {
         self.gatewaySocket.send(JSON.stringify({
