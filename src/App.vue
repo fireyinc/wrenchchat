@@ -674,8 +674,14 @@ span {
 
 
 import _ from 'lodash';
-// import Store from 'electron-store'
-// const store = new Store()
+import * as store from './extpacks/new-electron-serve'
+
+// import { exists } from 'tauri-plugin-fs-extra-api'
+// import {fs} from '@tauri-apps/api'
+
+
+
+// store.init({selectedserver: 0, "hummus Infrastructure": 0})
 
 export default {
   name: 'App',
@@ -692,7 +698,7 @@ export default {
       guildlist: [],
       guildchannels: [],
       selectedguild: 0,
-      selectedchannel: 0,
+      selectedchannel: undefined,
 
       guilddata: [],
 
@@ -743,6 +749,7 @@ export default {
       this.selectedchannel = channelindex
       channels[this.selectedchannel].style.backgroundColor = 'rgba(0, 0, 0, 0.25)'
       channels[this.selectedchannel].style.borderLeft = 'solid 3px orange'
+      console.log(channelindex)
     },
 
     async serverchanger(e, guildindex){
@@ -754,7 +761,16 @@ export default {
 
       this.selectedguild = guildindex
       this.guildchannels = this.guildlist[this.selectedguild].channels
+
+
+
       this.selectedchannel = 0
+      
+      // await store.load()
+      // store.set("selectedserver", guildindex)
+      // store.set(this.guildlist[guildindex].id, this.selectedchannel)
+      // await store.save()
+      // console.log(store.get("selectedserver"))
     },
 
     async getUserData(){
@@ -763,6 +779,8 @@ export default {
         switch (eventdata.t){
           case "READY":
             this.guildlist = eventdata.d.guilds
+            // await store.load()
+            // console.log(store.get("selectedserver"))
             this.selectedguild = 0
             this.guildchannels = this.guildlist[this.selectedguild].channels
             this.selectedchannel = 0
@@ -812,6 +830,7 @@ export default {
     var self = this
 
 
+    console.log(store.fstest())
 
     this.gatewaySocket.addEventListener("open", () => {
         self.gatewaySocket.send(JSON.stringify({
@@ -852,6 +871,8 @@ export default {
     await this.getUserData()
 
 
+
+
   },
 
   updated() {
@@ -868,16 +889,6 @@ export default {
     channels[this.selectedchannel].style.borderLeft = 'solid 3px orange'
     guildicons[this.selectedguild].style.borderRadius = '15px'
   },
-
-  mounted() {
-    // store.set('egg', 'egg')
-    // console.log(store.get('egg'))
-  },
-
-  async beforeMount(){
-    await setTimeout(() => {  return 'hello' }, 2000);
-  }
-
 
 }
 </script>
