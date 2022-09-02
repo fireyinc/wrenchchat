@@ -674,7 +674,7 @@ span {
 
 
 import _ from 'lodash';
-import * as store from './extpacks/new-electron-serve'
+import * as store from './extpacks/new-electron-store'
 
 // import { exists } from 'tauri-plugin-fs-extra-api'
 // import {fs} from '@tauri-apps/api'
@@ -714,6 +714,7 @@ export default {
       channelid: undefined,
       sequencing: null,
       heartbeat: undefined,
+      serveridsvisited: []
     }
   },
   methods: {
@@ -747,6 +748,8 @@ export default {
         item.style.borderLeft = 'solid 3px transparent'
       })
       this.selectedchannel = channelindex
+      store.set(`${this.guildlist[this.selectedguild].id}`, channelindex)
+      
       channels[this.selectedchannel].style.backgroundColor = 'rgba(0, 0, 0, 0.25)'
       channels[this.selectedchannel].style.borderLeft = 'solid 3px orange'
       console.log(channelindex)
@@ -762,15 +765,23 @@ export default {
       this.selectedguild = guildindex
       this.guildchannels = this.guildlist[this.selectedguild].channels
 
+      store.set("selectedguild", guildindex)
 
+      var channelselection = undefined
+      if (store.get(`${this.guildlist[this.selectedguild].id}`) === undefined){
+        channelselection = 0
+        console.log("not there")
+      }
+      else{
+        channelselection = store.get(`${this.guildlist[this.selectedguild].id}`)
+        console.log(channelselection)
+        console.log("there")
+      }
 
-      this.selectedchannel = 0
-      
-      // await store.load()
-      // store.set("selectedserver", guildindex)
-      // store.set(this.guildlist[guildindex].id, this.selectedchannel)
-      // await store.save()
-      // console.log(store.get("selectedserver"))
+      this.selectedchannel = channelselection
+      this.selectedchannel = channelselection
+      this.serveridsvisited.push(this.guildlist[this.selectedguild].id)
+      console.log(this.serveridsvisited)
     },
 
     async getUserData(){
@@ -781,9 +792,27 @@ export default {
             this.guildlist = eventdata.d.guilds
             // await store.load()
             // console.log(store.get("selectedserver"))
-            this.selectedguild = 0
+            store.load()
+            this.selectedguild = store.get("selectedguild")
             this.guildchannels = this.guildlist[this.selectedguild].channels
-            this.selectedchannel = 0
+            var channelselection = undefined
+            if (store.get(`${this.guildlist[this.selectedguild].id}`) === undefined){
+              channelselection = 0
+              console.log("not there")
+            }
+            else{
+              channelselection = store.get(`${this.guildlist[this.selectedguild].id}`)
+              console.log("there")
+            }
+            this.selectedchannel = channelselection
+            this.serveridsvisited.push(this.guildlist[this.selectedguild].id)
+            console.log(this.serveridsvisited)
+            var self = this
+            this.gatewaySocket.send(JSON.stringify({
+              op: 12,
+              t: "GUILD_SYNC",
+              d: [...self.serveridsvisited]
+            }))
         }
       })
     },
@@ -830,7 +859,7 @@ export default {
     var self = this
 
 
-    store.set('hello', 'hello')
+    store.load()
 
     this.gatewaySocket.addEventListener("open", () => {
         self.gatewaySocket.send(JSON.stringify({
@@ -848,6 +877,7 @@ export default {
         }))
       })
     this.gatewaySocket.addEventListener('message', (event) => {
+        console.log(event)
         var eventdata = JSON.parse(event.data)
         switch(eventdata.op){
             case 10:
